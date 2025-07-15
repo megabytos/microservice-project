@@ -53,7 +53,7 @@ fi
 
 # Install Python 3.9+
 PYTHON_VERSION=$(python3 --version 2>/dev/null | grep -oP '\d+\.\d+')
-if [[ -z "$PYTHON_VERSION" || $(( ${PYTHON_VERSION%%.*} < 3 || ( ${PYTHON_VERSION%%.*} == 3 && ${PYTHON_VERSION##*.} < 13 ) )) -eq 1 ]]; then
+if [[ -z "$PYTHON_VERSION" || $(( ${PYTHON_VERSION%%.*} < 3 || ( ${PYTHON_VERSION%%.*} == 3 && ${PYTHON_VERSION##*.} < 9 ) )) -eq 1 ]]; then
     log_info "Installing Python 3.9+..."  
     sudo apt-get install -y python3
     log_success "$(python3 --version) installed"
