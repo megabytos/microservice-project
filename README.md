@@ -1,26 +1,13 @@
-# HW 3 - Linux administration
-
-This script installs development tools on a Debian-based system:
-- Docker
-- Docker compose
-- Python 3.9
-- Django
-
-
-## Installation
+# HW 4 - Docker
 
 1. Clone the repo
-2. Checkout branch `lesson-3`
+2. Checkout branch `lesson-4`
 ```shell
-git checkout lesson-3
+git checkout lesson-4
 ```
-3. Make the script executable
+3. Start services in containers
 
 ```shell
-  chmod u+x install_dev_tools.sh
+  docker-compose up -d --build
 ```
-4. Execute the script
-
-```shell
-  ./install_dev_tools.sh
-```
+4. The web application is available at http://localhost:80
