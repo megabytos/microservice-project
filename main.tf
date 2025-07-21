@@ -1,8 +1,8 @@
-# module "s3_backend" {
-#   source      = "./modules/s3-backend"            # Path to the S3 module
-#   bucket_name = "terraform-state-bucket-alx"      # Name of the S3 bucket
-#   table_name  = "terraform-locks"                 # Name of the DynamoDB table
-# }
+module "s3_backend" {
+  source      = "./modules/s3-backend"            # Path to the S3 module
+  bucket_name = "terraform-state-bucket-alx"      # Name of the S3 bucket
+  table_name  = "terraform-locks"                 # Name of the DynamoDB table
+}
 
 module "vpc" {
   source              = "./modules/vpc"                                       # Path to the VPC module

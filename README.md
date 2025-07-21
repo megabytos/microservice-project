@@ -63,6 +63,8 @@ This will create:
 
 After the backend is created, return to the root folder with the main Terraform configuration and run the standard commands to create the infrastructure.
 
+It is recommended to comment out the s3_backend creation block in main.tf and the output data of this module in outputs.tf before this.
+
 Initialize Terraform:
 
 ```bash

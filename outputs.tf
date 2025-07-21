@@ -1,17 +1,17 @@
-# output "s3_bucket_name" {
-#   description = "Name of the S3 bucket for states"
-#   value       = module.s3_backend.s3_bucket_name
-# }
-#
-# output "s3_bucket_url" {
-#   description = "URL of the S3 bucket for states"
-#   value       = module.s3_backend.s3_bucket_url
-# }
-#
-# output "dynamodb_table_name" {
-#   description = "Name of the DynamoDB table for state locking"
-#   value       = module.s3_backend.dynamodb_table_name
-# }
+output "s3_bucket_name" {
+  description = "Name of the S3 bucket for states"
+  value       = module.s3_backend.s3_bucket_name
+}
+
+output "s3_bucket_url" {
+  description = "URL of the S3 bucket for states"
+  value       = module.s3_backend.s3_bucket_url
+}
+
+output "dynamodb_table_name" {
+  description = "Name of the DynamoDB table for state locking"
+  value       = module.s3_backend.dynamodb_table_name
+}
 
 output "vpc_id" {
   description = "ID of the created VPC"
