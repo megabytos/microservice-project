@@ -1,8 +1,8 @@
-module "s3_backend" {
-  source      = "./modules/s3-backend"            # Path to the S3 module
-  bucket_name = "terraform-state-bucket-alx"      # Name of the S3 bucket
-  table_name  = "terraform-locks"                 # Name of the DynamoDB table
-}
+# module "s3_backend" {
+#   source      = "./modules/s3-backend"            # Path to the S3 module
+#   bucket_name = "terraform-state-bucket-alx"      # Name of the S3 bucket
+#   table_name  = "terraform-locks"                 # Name of the DynamoDB table
+# }
 
 module "vpc" {
   source              = "./modules/vpc"                                       # Path to the VPC module
@@ -22,3 +22,12 @@ module "ecr" {
   image_retention_count   = 30                    # Number of images to retain before deleting older ones
 }
 
+module "eks" {
+  source          = "./modules/eks"
+  cluster_name    = "eks-cluster-alx"            # Назва кластера
+  subnet_ids      = module.vpc.public_subnets     # ID підмереж
+  instance_type   = "t3.medium"                    # Тип інстансів
+  desired_size    = 2                             # Бажана кількість нодів
+  max_size        = 2                             # Максимальна кількість нодів
+  min_size        = 2                             # Мінімальна кількість нодів
+}
