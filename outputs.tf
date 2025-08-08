@@ -70,3 +70,4 @@ output "eks_node_role_arn" {
   description = "IAM role ARN for EKS Worker Nodes"
   value       = module.eks.eks_node_role_arn
 }
+

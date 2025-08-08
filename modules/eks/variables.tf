@@ -1,6 +1,6 @@
 variable "region" {
   description = "AWS region for deployment"
-  default     = "eu-west-1еукк"
+  default     = "eu-west-1"
 }
 
 variable "cluster_name" {
@@ -23,6 +23,16 @@ variable "instance_type" {
   default     = "t3.medium"
 }
 
+variable "capacity_type" {
+  description = "EC2 instance capacity type ON_DEMAND / SPOT"
+  default     = "ON_DEMAND"
+}
+
+variable "ami_type" {
+  description = "EC2 instance AMI type"
+  default     = "AL2023_x86_64_STANDARD"
+}
+
 variable "desired_size" {
   description = "Desired number of worker nodes"
   default     = 2
@@ -38,3 +48,7 @@ variable "min_size" {
   default     = 1
 }
 
+variable "eks_ui_username" {
+  description = "EKS UI user name (root or user/myuser for IAM user)"
+  default     = "root"
+}

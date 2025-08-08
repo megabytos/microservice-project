@@ -24,10 +24,13 @@ module "ecr" {
 
 module "eks" {
   source          = "./modules/eks"
-  cluster_name    = "eks-cluster-alx"            # Назва кластера
-  subnet_ids      = module.vpc.public_subnets     # ID підмереж
-  instance_type   = "t3.medium"                    # Тип інстансів
-  desired_size    = 2                             # Бажана кількість нодів
-  max_size        = 2                             # Максимальна кількість нодів
-  min_size        = 2                             # Мінімальна кількість нодів
+  cluster_name    = "eks-cluster-alx"             # Cluster name
+  eks_ui_username = "root"
+  subnet_ids      = module.vpc.public_subnets     # Subnet IDs
+  instance_type   = "t3.medium"                   # Instance type
+  capacity_type   = "ON_DEMAND"                   # Instance capacity type
+  ami_type        = "AL2023_x86_64_STANDARD"      # AMI type
+  desired_size    = 2                             # Desired number of nodes
+  max_size        = 3                             # Maximum number of nodes
+  min_size        = 2                             # Minimum number of nodes
 }

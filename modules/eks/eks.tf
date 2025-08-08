@@ -1,8 +1,8 @@
-# IAM-роль для EKS-кластера, яка дозволяє сервісу EKS взаємодіяти з іншими сервісами AWS
+# IAM Role for the EKS Cluster Allowing It to Interact with Other AWS Services
 resource "aws_iam_role" "eks" {
-  name = "${var.cluster_name}-eks-cluster"      # Ім'я IAM-ролі для кластера EKS
+  name = "${var.cluster_name}-eks-cluster"      # IAM role name for the EKS cluster
 
-  assume_role_policy = jsonencode({             # Політика, яка дозволяє сервісу EKS «асумувати» цю IAM-роль
+  assume_role_policy = jsonencode({             # Trust policy allowing the EKS service to assume this IAM role
     Version   = "2012-10-17"
     Statement = [
       {
@@ -16,27 +16,47 @@ resource "aws_iam_role" "eks" {
   })
 }
 
-# Прив'язка політики AmazonEKSClusterPolicy до IAM-ролі EKS-кластера
+# Attach the AmazonEKSClusterPolicy to the EKS Cluster IAM Role
 resource "aws_iam_role_policy_attachment" "eks" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"   # ARN політики AWS, яка забезпечує основні дозволи для керування EKS-кластером
-  role = aws_iam_role.eks.name                                    # IAM-роль, до якої прив'язується політика
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"   # ARN of AWS-managed policy providing basic permissions for managing an EKS cluster
+  role = aws_iam_role.eks.name                                    # The IAM role to which the policy is attached
 }
 
-# Створення EKS-кластера
+# Create the EKS Cluster
 resource "aws_eks_cluster" "eks" {
-  name     = var.cluster_name        # Назва кластера
-  role_arn = aws_iam_role.eks.arn    # ARN IAM-ролі, яка потрібна для керування кластером
+  name     = var.cluster_name        # Cluster name
+  role_arn = aws_iam_role.eks.arn    # ARN of the IAM role required for managing the cluster
+  #version  = "1.32"
 
-  vpc_config {                       # Налаштування мережі (VPC)
-    endpoint_private_access = true   # Дозволяє доступ до API-сервера через приватну мережу (VPC)
-    endpoint_public_access  = true   # Дозволяє  публічний доступ до API-сервера через інтернет
-    subnet_ids = var.subnet_ids      # Список публічних та приватних підмереж у VPC, де буде працювати EKS
+  vpc_config {                       # VPC networking configuration
+    endpoint_private_access = true   # Enables access to the API server via the private VPC network
+    endpoint_public_access  = true   # Enables public access to the API server via the internet
+    subnet_ids = var.subnet_ids      # List of public and private subnets in the VPC where EKS will run
   }
 
-  access_config {                                        # Налаштування доступу до EKS-кластера
-    authentication_mode                         = "API"  # Додає режим автентифікації через API
-    bootstrap_cluster_creator_admin_permissions = true   # Надає адміністративні права користувачу, який створив кластер (дозволяє автоматичний доступ адміністраторам)
+  access_config {                                        # EKS cluster access configuration
+    authentication_mode                         = "API"  # Enables authentication via the API
+    bootstrap_cluster_creator_admin_permissions = true   # Grants admin rights to the cluster creator (automatic admin access)
   }
 
-  depends_on = [aws_iam_role_policy_attachment.eks]    # Залежність від IAM-політики для ролі EKS (IAM-роль та її політика мають бути створені перед створенням самого EKS-кластера)
+  depends_on = [aws_iam_role_policy_attachment.eks]    # Ensures the IAM role and its policy are created before the cluster
+}
+
+data "aws_caller_identity" "current" {}         # Get Information About the Current AWS Account
+
+# Create an EKS Access Entry for a User/Role
+resource "aws_eks_access_entry" "eks_root_admin" {
+  cluster_name  = aws_eks_cluster.eks.name
+  principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:${var.eks_ui_username}"    # ARN of the user or role to grant access
+  type          = "STANDARD"                                                                              # Access type: STANDARD / FEDERATED
+}
+
+# Associate an EKS Access Policy With the User/Role
+resource "aws_eks_access_policy_association" "admin_policy" {
+  cluster_name  = aws_eks_cluster.eks.name
+  principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:${var.eks_ui_username}"    # ARN of the user or role to which the policy will be attached
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"                    # Administrator policy for the EKS cluster
+  access_scope {
+    type = "cluster"                # The policy applies to the entire cluster
+  }
 }
