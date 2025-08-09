@@ -65,7 +65,7 @@ spec:
               git clone https://$GITHUB_USER:$GITHUB_PAT@github.com/$GITHUB_USER/${GIT_REPO}.git
               cd ${GIT_REPO}
               git checkout ${GIT_BRANCH} || git checkout -b ${GIT_BRANCH}
-              cd ${GIT_BRANCH}/${CHART_PATH}
+              cd ${CHART_PATH}
 
               # Update values.yaml
               sed -i "s|repository:.*|repository: ${ECR_REGISTRY}/${IMAGE_NAME}|" values.yaml

@@ -1,4 +1,6 @@
 controller:
+  javaOpts: "-Duser.language=en -Duser.country=US"
+
   admin:                      # облікові дані адміністратора Jenkins
     username: admin
     password: admin123
