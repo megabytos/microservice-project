@@ -17,6 +17,11 @@ spec:
         - sleep
       args:
         - 99d
+    - name: git
+      image: alpine/git
+      command:
+        - cat
+      tty: true
 """
     }
   }
@@ -24,7 +29,12 @@ spec:
   environment {
     ECR_REGISTRY = "793872273299.dkr.ecr.eu-west-1.amazonaws.com"
     IMAGE_NAME   = "ecr-alx"
-    IMAGE_TAG    = "v${BUILD_NUMBER}"
+    IMAGE_TAG    = "v1.0.${BUILD_NUMBER}"
+    COMMIT_EMAIL = "jenkins@localhost"
+    COMMIT_NAME  = "jenkins"
+    GIT_REPO = "microservice-project"
+    GIT_BRANCH = "lesson-8-9"
+    CHART_PATH   = "charts/django-app"
   }
 
   stages {
@@ -44,5 +54,34 @@ spec:
         }
       }
     }
+
+  stage('Update Chart Tag in Git') {
+      steps {
+        container('git') {
+          withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PAT')]) {
+            sh '''
+              set -e
+              echo "Cloning repo and updating Helm chart..."
+              git clone https://$GITHUB_USER:$GITHUB_PAT@github.com/$GITHUB_USER/${GIT_REPO}.git
+              cd ${GIT_REPO}
+              git checkout ${GIT_BRANCH} || git checkout -b ${GIT_BRANCH}
+              cd ${GIT_BRANCH}/${CHART_PATH}
+
+              # Update values.yaml
+              sed -i "s|repository:.*|repository: ${ECR_REGISTRY}/${IMAGE_NAME}|" values.yaml
+              sed -i "s|tag:.*|tag: ${IMAGE_TAG}|" values.yaml
+
+              git config user.email "$COMMIT_EMAIL"
+              git config user.name "$COMMIT_NAME"
+
+              git add values.yaml
+              git commit -m "Update image tag to ${IMAGE_TAG}"
+              git push origin ${GIT_BRANCH}
+            '''
+          }
+        }
+      }
+    }
+
   }
 }

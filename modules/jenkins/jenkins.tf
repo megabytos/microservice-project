@@ -82,12 +82,12 @@ resource "aws_iam_role_policy" "jenkins_ecr_policy" {
 }
 
 locals {
-  jenkins_values = templatefile("${path.module}/values.tpl", {
+  jenkins_values = templatefile("${path.module}/values.yaml", {
     github_pat      = var.github_pat
     github_user     = var.github_user
     github_repo_url = var.github_repo_url
     github_branch   = var.github_branch
-    app_jenkinsfile_dir = var.app_jenkinsfile_dir
+    jenkinsfile_dir = var.jenkinsfile_dir
   })
 }
 

@@ -1,21 +1,19 @@
-variable "cluster_name" {
-  description = "Name of the EKS cluster"
+variable "name" {
+  description = "Name of the Helm release"
   type        = string
+  default     = "argo-cd"
 }
 
 variable "namespace" {
-  description = "Kubernetes namespace for deploying Jenkins"
+  description = "K8s namespace для Argo CD"
   type        = string
-  default     = "jenkins"
+  default     = "argocd"
 }
 
-variable "oidc_provider_arn" {
-  description = "OIDC provider ARN from EKS cluster"
+variable "chart_version" {
+  description = "Version of the Argo CD chart"
   type        = string
-}
-
-variable "oidc_provider_url" {
-  type = string
+  default     = "5.46.4"
 }
 
 variable "github_pat" {
@@ -36,10 +34,5 @@ variable "github_repo_url" {
 
 variable "github_branch" {
   description = "GitHub branch for Jenkins"
-  type        = string
-}
-
-variable "jenkinsfile_dir" {
-  description = "Application Jenkinsfile location"
   type        = string
 }

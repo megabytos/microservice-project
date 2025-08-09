@@ -71,6 +71,14 @@ output "eks_node_role_arn" {
   value       = module.eks.eks_node_role_arn
 }
 
+output "oidc_provider_arn" {
+  value = module.eks.oidc_provider_arn
+}
+
+output "oidc_provider_url" {
+  value = module.eks.oidc_provider_url
+}
+
 #-------------jenkins-----------------
 
 output "jenkins_release" {
@@ -79,4 +87,14 @@ output "jenkins_release" {
 
 output "jenkins_namespace" {
   value = module.jenkins.jenkins_namespace
+}
+
+#-------------argo_cd-----------------
+
+output "argocd_server_service" {
+  value       = module.argo_cd.argo_cd_server_service
+}
+
+output "admin_password" {
+  value = module.argo_cd.admin_password
 }
