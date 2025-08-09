@@ -1,4 +1,4 @@
-# HW 7 - Terraform, Kubernetes and Helm
+# HW 8-9 - Terraform, Kubernetes and Helm
 
 This project provide basic AWS infrastructure using Terraform with modular structure and remote state backend.
 

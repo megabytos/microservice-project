@@ -1,3 +1,25 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.0.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.0.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.region
+}
+
+
 # module "s3_backend" {
 #   source      = "./modules/s3-backend"            # Path to the S3 module
 #   bucket_name = "terraform-state-bucket-alx"      # Name of the S3 bucket
@@ -34,3 +56,45 @@ module "eks" {
   max_size        = 3                             # Maximum number of nodes
   min_size        = 2                             # Minimum number of nodes
 }
+
+data "aws_eks_cluster" "eks" {                    # дозволяє Terraform отримати інформацію про створений кластер EKS
+  name       = module.eks.eks_cluster_name
+  depends_on = [module.eks]
+}
+
+data "aws_eks_cluster_auth" "eks" {               # повертає IAM- токен, необхідний для автентифікації Helm до Kubernetes API
+  name       = module.eks.eks_cluster_name
+  depends_on = [module.eks]
+}
+
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.eks.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.eks.token
+}
+
+provider "helm" {
+  kubernetes = {
+    host                   = data.aws_eks_cluster.eks.endpoint          #  адреса API сервера Kubernetes
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)   # використовується для встановлення TLS-з’єднання
+    token                  = data.aws_eks_cluster_auth.eks.token        #  дає Helm змогу автентифікуватися від імені AWS користувача (можна працювати з кластером повністю через Terraform, без ручного логіна )
+  }
+}
+
+module "jenkins" {
+  source            = "./modules/jenkins"
+  cluster_name      = module.eks.eks_cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+  github_token      = var.github_pat
+  github_user       = var.github_user
+  github_repo_url   = var.github_repo_url
+  github_branch     = var.github_branch
+
+  depends_on = [module.eks]
+  providers = {
+    helm       = helm                   # підключає Helm-провайдер до Kubernetes через kubeconfig
+    kubernetes = kubernetes
+  }
+}
+
