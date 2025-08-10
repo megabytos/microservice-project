@@ -1,4 +1,4 @@
-# HW 10 - Terraform, Kubernetes, Helm, Jenkins, Argo CD, RDS, Aurora
+# Microservice project - Terraform, Kubernetes, Helm, Jenkins, Argo CD, RDS, Aurora, Prometheus, Grafana
 
 This project provide basic AWS infrastructure using Terraform with modular structure and remote state backend.
 
@@ -15,6 +15,7 @@ This project provide basic AWS infrastructure using Terraform with modular struc
 │ ├── rds/                 # RDS/Aurora database configuration
 │ ├── ecr/                 # Docker image repository (ECR) module
 │ ├── eks/                 # Kubernetes cluster (EKS) module
+│ ├── monitoring/          # Prometheus and Grafana 
 │ ├── jenkins/             # Jenkins Helm deployment + config
 │ └── argo_cd/             # Argo CD Helm deployment + Application management
 ├── charts/                # Helm charts
@@ -192,6 +193,18 @@ After logging into Jenkins you will see the seed-job on the main Dashboard page.
 * Go to the seed-job pipeline and click on Build now 
 * For the first run you need to approve the script, for this go to Dashboard -> Manage Jenkins -> In-process Script Approval and approve the seed-job 
 * As a result of executing the seed-job the goit-django-docker pipeline should be created
+
+In order for the goit-django-docker pipeline to be executed with each push to the django/ project directory, you need to configure the GitHub Webhook \
+To do this, in your Github project, go to `Settings -> Webhooks -> Add Webhooks` \
+As a Payload URL, specify the following address
+```bash
+http://<jenkins-external-dns>/github-webhook/
+```
+Content type specify `application/json`
+
+In order for the pipeline not to be launched with a push that Argo CD makes, you need to go to
+Manage Jenkins -> Plugins in the Jenkins interface and install the `SCM Skip` plugin
+
 ---
 
 ## Argo CD module
@@ -215,7 +228,7 @@ After logging in, the app should be in Healthy status.
 
 ---
 
-## RDS Module
+## RDS / Aurora Module
 
 This module allows you to create both a regular RDS database (PostgreSQL / MySQL) and an Aurora cluster (Aurora PostgreSQL / Aurora MySQL), as well as:
 
@@ -289,6 +302,47 @@ parameter_group_family_aurora = "aurora-postgresql15"
 ![Aurora](assets/aurora.jpg)
 
 
+---
+
+## Monitoring module
+
+Module automatically installs Prometheus and Grafana in the EKS cluster \
+You can check the deployment:
+```bash
+kubectl get all -n monitoring
+```
+Find out the name of the Prometheus service (default is `kube-prometheus-stack-prometheus`)
+```bash
+terraform output prometheus_service_name 
+```
+Access the Prometheus interface on localhost via port forwarding
+```bash
+kubectl port-forward -n monitoring svc/<prometheus_service_name> 9090:80
+```
+Then open in browser
+```bash
+http://localhost:9090
+```
+![Prometheus](assets/prometheus.jpg)
+
+Find the Grafana LoadBalancer address (EXTERNAL-IP)
+```bash
+kubectl get svc -n monitoring
+```
+Open the Grafana EXTERNAL-IP in your browser
+```bash
+http://<external-dns>
+```
+Find out the name of the Grafana service (default is `kube-prometheus-stack-grafana`)
+```bash
+terraform output grafana_service_name
+```
+
+To get the password, run the command and copy the result (login is `admin`)
+```bash
+kubectl get secret --namespace monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+```
+![Grafana](assets/grafana.jpg)
 
 ---
 

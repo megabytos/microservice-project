@@ -104,3 +104,16 @@ output "admin_password" {
 output "rds_endpoint" {
   value = module.rds.rds_endpoint
 }
+
+#-------------monitoring-----------------
+
+output "prometheus_service_name" {
+  value = module.monitoring.prometheus_service_name
+}
+
+output "grafana_service_name" {
+  value = module.monitoring.grafana_service_name
+}
+
+
+

@@ -81,6 +81,18 @@ provider "helm" {
   }
 }
 
+module "monitoring" {
+  source = "./modules/monitoring"
+  namespace     = "monitoring"
+  depends_on = [
+    module.eks
+  ]
+  providers = {
+    helm = helm
+    kubernetes = kubernetes
+  }
+}
+
 module "jenkins" {
   source            = "./modules/jenkins"
   cluster_name      = module.eks.eks_cluster_name
