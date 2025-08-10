@@ -26,6 +26,11 @@ spec:
     }
   }
 
+  options {
+    skipDefaultCheckout(true)
+    timestamps()
+  }
+
   environment {
     ECR_REGISTRY = "793872273299.dkr.ecr.eu-west-1.amazonaws.com"
     IMAGE_NAME   = "ecr-alx"
@@ -35,6 +40,7 @@ spec:
     GIT_REPO = "microservice-project"
     GIT_BRANCH = "lesson-8-9"
     CHART_PATH   = "charts/django-app"
+    SKIP_BUILD = "false"
   }
 
   stages {
@@ -42,6 +48,7 @@ spec:
       steps {
         container('git') {
           checkout scm
+          sh 'git config --global --add safe.directory "$WORKSPACE"'
           script {
             def msg = sh(returnStdout: true, script: "git log -1 --pretty=%B").trim()
             if (msg ==~ /(?is).*\\[(ci skip|skip ci)\\].*/) {
