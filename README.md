@@ -1,4 +1,4 @@
-# HW 8-9 - Terraform, Kubernetes and Helm
+# HW 8-9 - Terraform, Kubernetes and Helm, Jenkins, Argo CD
 
 This project provide basic AWS infrastructure using Terraform with modular structure and remote state backend.
 
@@ -158,6 +158,8 @@ Open the EXTERNAL-IP in your browser
 http://<external-dns>
 ```
 
+![Django](assets/django.jpg)
+
 ## Checking the Deployment
 
 List all Kubernetes resources
@@ -169,6 +171,46 @@ Check the logs of the pods
 ```bash
 kubectl logs -f <pod_name>
 ```
+## Jenkins CI module
+
+Find the Jenkins LoadBalancer address (EXTERNAL-IP)
+```bash
+kubectl get svc -n jenkins
+```
+Open the Jenkins EXTERNAL-IP in your browser
+```bash
+http://<external-dns>
+```
+To get the password, run the command and copy the result (login is `admin`)
+```bash
+kubectl get secret jenkins -n jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode && echo
+```
+![Jenkins](assets/jenkins.jpg)
+
+After logging into Jenkins you will see the seed-job on the main Dashboard page. 
+* Go to the seed-job pipeline and click on Build now 
+* For the first run you need to approve the script, for this go to Dashboard -> Manage Jenkins -> In-process Script Approval and approve the seed-job 
+* As a result of executing the seed-job the goit-django-docker pipeline should be created
+---
+
+## Argo CD module
+
+Find the ArgoCD LoadBalancer address (EXTERNAL-IP)
+```bash
+kubectl get svc -n argocd
+```
+Open the ArgoCD EXTERNAL-IP in your browser
+```bash
+http://<external-dns>
+```
+
+To get the password, run the command and copy the result (login is `admin`)
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath={.data.password} | base64 -d
+```
+![ArgoCD](assets/argocd.jpg)
+
+After logging in, the app should be in Healthy status.
 
 ---
 
