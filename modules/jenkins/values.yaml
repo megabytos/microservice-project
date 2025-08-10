@@ -70,6 +70,10 @@ controller:
                   dsl {
                     text('''
                       pipelineJob("goit-django-docker") {                        
+                        triggers {
+                          githubPush()
+                          // pollSCM('H/2 * * * *') 
+                        }
                         definition {
                           cpsScm {
                             scm {

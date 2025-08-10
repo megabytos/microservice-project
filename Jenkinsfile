@@ -39,6 +39,7 @@ spec:
 
   stages {
     stage('Build & Push Docker Image to ECR') {
+      // when { changeset pattern: 'django/**', comparator: 'ANT' }
       steps {
         container('kaniko') {
           sh '''
@@ -56,6 +57,7 @@ spec:
     }
 
   stage('Update Chart Tag in Git') {
+      // when { changeset pattern: 'django/**', comparator: 'ANT' }
       steps {
         container('git') {
           withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PAT')]) {
