@@ -7,11 +7,15 @@ This project provide basic AWS infrastructure using Terraform with modular struc
 ```
 ├── backend.tf             # S3 + DynamoDB backend configuration
 ├── main.tf                # Main entry point to invoke modules
+├── Jenkinsfile            # CI pipeline definition
+├── django/                # Application for image building
 ├── modules/               # Terraform modules
 │ ├── s3-backend/          # Remote state backend (S3 + DynamoDB) module
 │ ├── vpc/                 # Network infrastructure (VPC) module
 │ ├── ecr/                 # Docker image repository (ECR) module
-│ └── eks/                 # Kubernetes cluster (EKS) module
+│ ├── eks/                 # Kubernetes cluster (EKS) module
+│ ├── jenkins/             # Jenkins Helm deployment + config
+│ └── argo_cd/             # Argo CD Helm deployment + Application management
 ├── charts/                # Helm charts
 ```
 

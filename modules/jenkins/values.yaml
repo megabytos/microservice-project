@@ -72,7 +72,7 @@ controller:
                       pipelineJob("goit-django-docker") {                        
                         triggers {
                           githubPush()
-                          // pollSCM('H/2 * * * *') 
+                          // pollSCM('H/3 * * * *') 
                         }
                         definition {
                           cpsScm {

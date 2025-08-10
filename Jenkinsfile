@@ -26,6 +26,10 @@ spec:
     }
   }
 
+  options {
+    disableConcurrentBuilds()
+  }
+
   environment {
     ECR_REGISTRY = "793872273299.dkr.ecr.eu-west-1.amazonaws.com"
     IMAGE_NAME   = "ecr-alx"
@@ -77,8 +81,8 @@ spec:
               git config user.name "$COMMIT_NAME"
 
               git add values.yaml
-              git commit -m "Update image tag to ${IMAGE_TAG}"
-              git push origin ${GIT_BRANCH}
+              git commit -m "[skip ci] Update image tag to ${IMAGE_TAG}" || echo "No changes"
+              git push origin "${GIT_BRANCH}" || echo "Nothing to push"
             '''
           }
         }

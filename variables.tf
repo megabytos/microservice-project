@@ -29,8 +29,3 @@ variable "jenkinsfile_dir" {
   description = "Application Jenkinsfile location"
   type        = string
 }
-
-variable "jenkinsfile_dir" {
-  description = "Application Jenkinsfile location"
-  type        = string
-}
