@@ -29,9 +29,9 @@ This project provide basic AWS infrastructure using Terraform with modular struc
 git clone <repository-url>
 ```
 
-2. Checkout branch `lesson-7`
+2. Checkout branch `final-project`
 ```shell
-git checkout lesson-7
+git checkout final-project
 ```
 
 ## AWS Configuration
@@ -307,6 +307,7 @@ parameter_group_family_aurora = "aurora-postgresql15"
 ## Monitoring module
 
 Module automatically installs Prometheus and Grafana in the EKS cluster \
+\
 You can check the deployment:
 ```bash
 kubectl get all -n monitoring
@@ -325,6 +326,15 @@ http://localhost:9090
 ```
 ![Prometheus](assets/prometheus.jpg)
 
+
+Find out the name of the Grafana service (default is `kube-prometheus-stack-grafana`)
+```bash
+terraform output grafana_service_name
+```
+To get the password, run the command and copy the result (login is `admin`)
+```bash
+kubectl get secret --namespace monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+```
 Find the Grafana LoadBalancer address (EXTERNAL-IP)
 ```bash
 kubectl get svc -n monitoring
@@ -333,15 +343,7 @@ Open the Grafana EXTERNAL-IP in your browser
 ```bash
 http://<external-dns>
 ```
-Find out the name of the Grafana service (default is `kube-prometheus-stack-grafana`)
-```bash
-terraform output grafana_service_name
-```
 
-To get the password, run the command and copy the result (login is `admin`)
-```bash
-kubectl get secret --namespace monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
-```
 ![Grafana](assets/grafana.jpg)
 
 ---
