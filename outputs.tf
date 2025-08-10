@@ -98,3 +98,9 @@ output "argocd_server_service" {
 output "admin_password" {
   value = module.argo_cd.admin_password
 }
+
+#-------------RDS-----------------
+
+output "rds_endpoint" {
+  value = module.rds.rds_endpoint
+}

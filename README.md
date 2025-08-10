@@ -1,4 +1,4 @@
-# HW 8-9 - Terraform, Kubernetes and Helm, Jenkins, Argo CD
+# HW 10 - Terraform, Kubernetes, Helm, Jenkins, Argo CD, RDS, Aurora
 
 This project provide basic AWS infrastructure using Terraform with modular structure and remote state backend.
 
@@ -12,6 +12,7 @@ This project provide basic AWS infrastructure using Terraform with modular struc
 ├── modules/               # Terraform modules
 │ ├── s3-backend/          # Remote state backend (S3 + DynamoDB) module
 │ ├── vpc/                 # Network infrastructure (VPC) module
+│ ├── rds/                 # RDS/Aurora database configuration
 │ ├── ecr/                 # Docker image repository (ECR) module
 │ ├── eks/                 # Kubernetes cluster (EKS) module
 │ ├── jenkins/             # Jenkins Helm deployment + config
@@ -211,6 +212,83 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath={.data.pass
 ![ArgoCD](assets/argocd.jpg)
 
 After logging in, the app should be in Healthy status.
+
+---
+
+## RDS Module
+
+This module allows you to create both a regular RDS database (PostgreSQL / MySQL) and an Aurora cluster (Aurora PostgreSQL / Aurora MySQL), as well as:
+
+After running terraform apply the endpoint is available in the outputs variable rds_endpoint. 
+
+```bash
+terraform output rds_endpoint
+```
+
+Example of connecting to the database:
+
+```bash
+psql --host=<your_rds_endpoint> \
+     --port=5432 \
+     --username=mydbuser \
+     --dbname=mydatabase
+```
+
+
+## Variables Explained
+| Variable               | Type           | Description                              |
+|------------------------|----------------|------------------------------------------|
+| `name`                 | `string`       | Name for the DB instance or Aurora сluster          |
+| `use_aurora`           | `bool`         | Enables Aurora cluster if true           |
+| `engine`               | `string`       | Engine type, e.g., `postgres` or `mysql` |
+| `db_name`              | `string`       | Name of the default database             |
+| `username`             | `string`       | Master DB username                       |
+| `password`             | `string`       | Master DB password (sensitive)           |
+| `allocated_storage`    | `number`       | Size in GB (for RDS only)                |
+| `parameter_group_family_rds` | `string` | Family for RDS Parameter Group           |
+| `aurora_instance_count`|`number`|Number of Aurora DB instances (1 = writer only)|
+| `instance_class`       | `string`       | Instance size (e.g., db.t3.micro, db.t3.medium)          |
+| `port`             | `number`       | Port used by the DB (5432 for PostgreSQL)                       |
+| `vpc_id`              | `string`       | ID of the VPC where the DB should be provisioned             |
+| `subnet_private_ids`      | `list(string)` | Private subnets to use for subnet group                                  |
+| `subnet_public_ids`       | `list(string)` | Public subnets (used if `publicly_accessible = true`)                    |
+| `publicly_accessible`     | `bool`        | Whether the DB is publicly available over the internet                   |
+| `multi_az`                | `bool`        | If true, deploys standby instance in another AZ (for standard RDS)       |
+| `backup_retention_period`| `number`      | Number of days to retain backups                                         |
+| `parameters`             | `map(string)` | Parameter overrides for parameter group                                  |
+| `tags`                   | `map(string)` | Optional tags for all resources                                          |
+
+
+## How to Change Engine Type / Deployment Mode
+
+### Standard PostgreSQL on RDS
+
+```hcl
+use_aurora                 = false
+engine                    = "postgres"
+engine_version            = "15.4"
+parameter_group_family_rds = "postgres15"
+```
+
+### MySQL
+```hcl
+use_aurora                 = false
+engine                    = "mysql"
+engine_version            = "8.0"
+parameter_group_family_rds = "mysql8.0"
+```
+
+### Aurora PostgreSQL
+```hcl
+use_aurora             = true
+engine_cluster             = "aurora-postgresql"
+engine_version_cluster     = "15.3"
+parameter_group_family_aurora = "aurora-postgresql15"
+```
+
+![Aurora](assets/aurora.jpg)
+
+
 
 ---
 
