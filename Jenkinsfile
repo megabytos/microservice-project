@@ -38,8 +38,25 @@ spec:
   }
 
   stages {
+    stage('Checkout & skip check') {
+      steps {
+        container('git') {
+          checkout scm
+          script {
+            def msg = sh(returnStdout: true, script: "git log -1 --pretty=%B").trim()
+            if (msg ==~ /(?is).*\\[(ci skip|skip ci)\\].*/) {
+              currentBuild.description = '[skip ci]'
+              env.SKIP_BUILD = 'true'
+              echo 'Found [skip ci] — stages will be skipped.'
+            }
+          }
+        }
+      }
+    }
+
     stage('Build & Push Docker Image to ECR') {
       // when { changeset pattern: 'django/**', comparator: 'ANT' }
+      when { expression { env.SKIP_BUILD != 'true' } }
       steps {
         container('kaniko') {
           sh '''
@@ -58,6 +75,7 @@ spec:
 
   stage('Update Chart Tag in Git') {
       // when { changeset pattern: 'django/**', comparator: 'ANT' }
+      when { expression { env.SKIP_BUILD != 'true' } }
       steps {
         container('git') {
           withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PAT')]) {
@@ -77,7 +95,7 @@ spec:
               git config user.name "$COMMIT_NAME"
 
               git add values.yaml
-              git commit -m "Update image tag to ${IMAGE_TAG}"
+              git commit -m "[skip ci] Update image tag to ${IMAGE_TAG}"
               git push origin ${GIT_BRANCH}
             '''
           }
